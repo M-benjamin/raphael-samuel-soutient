@@ -9,7 +9,6 @@ export async function POST(req: Request) {
       amount,
       currency = "usd",
       description,
-      metadata = {},
     } = (await req.json()) as {
       amount: number;
       currency?: string;
@@ -30,7 +29,6 @@ export async function POST(req: Request) {
       automatic_payment_methods: {
         enabled: true,
       },
-      metadata,
       description,
       confirm: true,
     });
