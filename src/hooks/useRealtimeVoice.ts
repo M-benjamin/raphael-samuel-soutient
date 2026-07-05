@@ -1,16 +1,19 @@
-'use client';
+"use client";
 
-import { useRef, useCallback, useEffect } from 'react';
-import { useVoiceStore } from '@/store/voice';
-import type { TranscriptEntry } from '@/types';
+import { useVoiceStore } from "@/store/voice";
+import { useCallback, useEffect, useRef } from "react";
 
 interface UseRealtimeVoiceOptions {
-  businessId: string;
+  businessId: string | undefined;
   agentId?: string;
   onConversationEnd?: (conversationId: string) => void;
 }
 
-export function useRealtimeVoice({ businessId, agentId, onConversationEnd }: UseRealtimeVoiceOptions) {
+export function useRealtimeVoice({
+  businessId,
+  agentId,
+  onConversationEnd,
+}: UseRealtimeVoiceOptions) {
   const {
     setConnectionState,
     addTranscriptEntry,
@@ -33,24 +36,25 @@ export function useRealtimeVoice({ businessId, agentId, onConversationEnd }: Use
   const pendingSavesRef = useRef<Promise<unknown>[]>([]);
 
   const connect = useCallback(async () => {
-    if (connectionState.status !== 'idle' && connectionState.status !== 'error') return;
+    if (connectionState.status !== "idle" && connectionState.status !== "error")
+      return;
 
-    setConnectionState({ status: 'connecting' });
+    setConnectionState({ status: "connecting" });
     clearTranscript();
 
     try {
       /* Phase 1: fetch session config from our backend */
-      const res = await fetch('/api/realtime/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/realtime/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ businessId, agentId }),
       });
 
-      if (!res.ok) throw new Error('Failed to create session');
+      if (!res.ok) throw new Error("Failed to create session");
 
       const sessionData = await res.json();
       const { conversationId: convId } = sessionData;
-      const model = sessionData.model || 'gpt-realtime';
+      const model = sessionData.model || "gpt-realtime";
 
       setConversationId(convId);
       startTimeRef.current = Date.now();
@@ -58,7 +62,7 @@ export function useRealtimeVoice({ businessId, agentId, onConversationEnd }: Use
       const pc = new RTCPeerConnection();
       pcRef.current = pc;
 
-      const audioEl = document.createElement('audio');
+      const audioEl = document.createElement("audio");
       audioEl.autoplay = true;
       audioRef.current = audioEl;
 
@@ -70,32 +74,35 @@ export function useRealtimeVoice({ businessId, agentId, onConversationEnd }: Use
       localStreamRef.current = stream;
       stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-      const dc = pc.createDataChannel('oai-events');
+      const dc = pc.createDataChannel("oai-events");
       dcRef.current = dc;
 
       dc.onopen = () => {
-        setConnectionState({ status: 'listening' });
+        setConnectionState({ status: "listening" });
         /* Trigger the greeting */
-        dc.send(JSON.stringify({ type: 'response.create' }));
+        dc.send(JSON.stringify({ type: "response.create" }));
       };
 
       dc.onmessage = async (e) => {
         try {
           const event = JSON.parse(e.data);
-await handleRealtimeEvent(event, convId, businessId, agentId);
+          await handleRealtimeEvent(event, convId, businessId, agentId);
         } catch (err) {
-          console.error('Event parse error:', err);
+          console.error("Event parse error:", err);
         }
       };
 
       dc.onerror = (err) => {
-        console.error('DataChannel error:', err);
-        setConnectionState({ status: 'error', error: 'Connection error' });
+        console.error("DataChannel error:", err);
+        setConnectionState({ status: "error", error: "Connection error" });
       };
 
       pc.oniceconnectionstatechange = () => {
-        if (pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'failed') {
-          setConnectionState({ status: 'idle' });
+        if (
+          pc.iceConnectionState === "disconnected" ||
+          pc.iceConnectionState === "failed"
+        ) {
+          setConnectionState({ status: "idle" });
         }
       };
 
@@ -104,11 +111,11 @@ await handleRealtimeEvent(event, convId, businessId, agentId);
 
       /* Wait for ICE gathering to complete before sending SDP */
       const completeSdp = await new Promise<string>((resolve) => {
-        if (pc.iceGatheringState === 'complete') {
+        if (pc.iceGatheringState === "complete") {
           resolve(pc.localDescription!.sdp);
         } else {
-          pc.addEventListener('icegatheringstatechange', () => {
-            if (pc.iceGatheringState === 'complete') {
+          pc.addEventListener("icegatheringstatechange", () => {
+            if (pc.iceGatheringState === "complete") {
               resolve(pc.localDescription!.sdp);
             }
           });
@@ -116,9 +123,9 @@ await handleRealtimeEvent(event, convId, businessId, agentId);
       });
 
       /* Phase 2: proxy SDP + session config through our backend */
-      const sdpRes = await fetch('/api/realtime/connect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const sdpRes = await fetch("/api/realtime/connect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sdp: completeSdp,
           model,
@@ -129,103 +136,140 @@ await handleRealtimeEvent(event, convId, businessId, agentId);
         }),
       });
 
-      if (!sdpRes.ok) throw new Error('SDP exchange failed');
+      if (!sdpRes.ok) throw new Error("SDP exchange failed");
 
       const answerSdp = await sdpRes.text();
-      await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
-
+      await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
     } catch (err) {
-      console.error('Voice connection error:', err);
-      setConnectionState({ status: 'error', error: 'Failed to connect. Check microphone permissions.' });
+      console.error("Voice connection error:", err);
+      setConnectionState({
+        status: "error",
+        error: "Failed to connect. Check microphone permissions.",
+      });
       cleanup();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [businessId, agentId, connectionState.status]);
 
-  const handleRealtimeEvent = async (event: Record<string, unknown>, convId: string, bId: string, aId?: string) => {
+  const handleRealtimeEvent = async (
+    event: Record<string, unknown>,
+    convId: string,
+    bId: string,
+    aId?: string,
+  ) => {
     const type = event.type as string;
 
     // ── Speaking state ───────────────────────────────────────────────────────
-    if (type === 'input_audio_buffer.speech_started') {
-      setConnectionState({ status: 'listening' });
+    if (type === "input_audio_buffer.speech_started") {
+      setConnectionState({ status: "listening" });
     }
 
-    if (type === 'response.created') {
-      setConnectionState({ status: 'speaking' });
+    if (type === "response.created") {
+      setConnectionState({ status: "speaking" });
     }
 
     // ── User spoke — GA doesn't transcribe user audio, show placeholder ───────
-    if (type === 'input_audio_buffer.committed') {
-      addTranscriptEntry({ id: `user-${Date.now()}`, role: 'user', content: '🎤 Voice message', timestamp: Date.now() });
+    if (type === "input_audio_buffer.committed") {
+      addTranscriptEntry({
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: "🎤 Voice message",
+        timestamp: Date.now(),
+      });
     }
 
     // ── Assistant transcript (GA: response.output_audio_transcript.*) ─────────
-    if (type === 'response.output_audio_transcript.delta') {
-      const delta = (event.delta as string) || '';
+    if (type === "response.output_audio_transcript.delta") {
+      const delta = (event.delta as string) || "";
       if (delta) {
         if (assistantMessageIdRef.current === null) {
           const id = `assistant-${Date.now()}`;
           assistantMessageIdRef.current = id;
-          addTranscriptEntry({ id, role: 'assistant', content: delta, timestamp: Date.now() });
+          addTranscriptEntry({
+            id,
+            role: "assistant",
+            content: delta,
+            timestamp: Date.now(),
+          });
         } else {
-          updateLastEntry((useVoiceStore.getState().transcript.at(-1)?.content || '') + delta);
+          updateLastEntry(
+            (useVoiceStore.getState().transcript.at(-1)?.content || "") + delta,
+          );
         }
-        setConnectionState({ status: 'speaking' });
+        setConnectionState({ status: "speaking" });
       }
     }
 
-    if (type === 'response.output_audio_transcript.done') {
-      const transcript = (event.transcript as string) || '';
+    if (type === "response.output_audio_transcript.done") {
+      const transcript = (event.transcript as string) || "";
       if (transcript) {
         // replace streamed partial with the authoritative final text
         if (assistantMessageIdRef.current !== null) {
           updateLastEntry(transcript);
         } else {
-          addTranscriptEntry({ id: `assistant-${Date.now()}`, role: 'assistant', content: transcript, timestamp: Date.now() });
+          addTranscriptEntry({
+            id: `assistant-${Date.now()}`,
+            role: "assistant",
+            content: transcript,
+            timestamp: Date.now(),
+          });
         }
         if (convId) {
-          const p = fetch('/api/conversations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ conversationId: convId, role: 'assistant', content: transcript }),
+          const p = fetch("/api/conversations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              conversationId: convId,
+              role: "assistant",
+              content: transcript,
+            }),
           }).catch(console.error);
           pendingSavesRef.current.push(p);
         }
       }
       assistantMessageIdRef.current = null;
-      setConnectionState({ status: 'listening' });
+      setConnectionState({ status: "listening" });
     }
 
     // ── User transcript (whisper transcription enabled via session.update) ─────
-    if (type === 'conversation.item.input_audio_transcription.completed') {
-      const transcript = (event.transcript as string) || '';
+    if (type === "conversation.item.input_audio_transcription.completed") {
+      const transcript = (event.transcript as string) || "";
       if (transcript.trim()) {
-        addTranscriptEntry({ id: `user-${Date.now()}`, role: 'user', content: transcript, timestamp: Date.now() });
+        addTranscriptEntry({
+          id: `user-${Date.now()}`,
+          role: "user",
+          content: transcript,
+          timestamp: Date.now(),
+        });
         if (convId) {
-          const p = fetch('/api/conversations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ conversationId: convId, role: 'user', content: transcript }),
+          const p = fetch("/api/conversations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              conversationId: convId,
+              role: "user",
+              content: transcript,
+            }),
           }).catch(console.error);
           pendingSavesRef.current.push(p);
         }
       }
     }
 
-    if (type === 'response.function_call_arguments.done') {
-      const toolName = (event.name as string) || '';
+    if (type === "response.function_call_arguments.done") {
+      const toolName = (event.name as string) || "";
       let toolArgs: Record<string, unknown> = {};
       try {
-        toolArgs = JSON.parse((event.arguments as string) || '{}');
+        toolArgs = JSON.parse((event.arguments as string) || "{}");
       } catch {
-        console.error('Failed to parse tool arguments for:', toolName);
+        console.error("Failed to parse tool arguments for:", toolName);
         return;
       }
       const callId = event.call_id as string;
 
       // Intercept createAppointment — show a confirmation form instead of
       // letting the AI mishear name/phone/email
-      if (toolName === 'createAppointment') {
+      if (toolName === "createAppointment") {
         const args = toolArgs as {
           customer_name?: string;
           customer_phone?: string;
@@ -238,14 +282,14 @@ await handleRealtimeEvent(event, convId, businessId, agentId);
           notes?: string;
         };
         setPendingAppointment({
-          customer_name: args.customer_name || '',
-          customer_phone: args.customer_phone || '',
-          customer_email: args.customer_email || '',
+          customer_name: args.customer_name || "",
+          customer_phone: args.customer_phone || "",
+          customer_email: args.customer_email || "",
           date_of_birth: args.date_of_birth,
           insurance_provider: args.insurance_provider,
           insurance_member_id: args.insurance_member_id,
           service_id: args.service_id,
-          scheduled_at: args.scheduled_at || '',
+          scheduled_at: args.scheduled_at || "",
           notes: args.notes,
           conversationId: convId,
           businessId: bId,
@@ -255,10 +299,16 @@ await handleRealtimeEvent(event, convId, businessId, agentId);
       }
 
       try {
-        const toolRes = await fetch('/api/realtime/tools', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ toolName, toolArgs, businessId: bId, agentId: aId, conversationId: convId }),
+        const toolRes = await fetch("/api/realtime/tools", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            toolName,
+            toolArgs,
+            businessId: bId,
+            agentId: aId,
+            conversationId: convId,
+          }),
         });
 
         if (!toolRes.ok) {
@@ -266,66 +316,74 @@ await handleRealtimeEvent(event, convId, businessId, agentId);
         }
 
         const data = await toolRes.json();
-        const result = data.result ?? { error: 'No result returned' };
+        const result = data.result ?? { error: "No result returned" };
 
-        if (dcRef.current?.readyState === 'open') {
-          dcRef.current.send(JSON.stringify({
-            type: 'conversation.item.create',
-            item: {
-              type: 'function_call_output',
-              call_id: callId,
-              output: JSON.stringify(result),
-            },
-          }));
-          dcRef.current.send(JSON.stringify({ type: 'response.create' }));
+        if (dcRef.current?.readyState === "open") {
+          dcRef.current.send(
+            JSON.stringify({
+              type: "conversation.item.create",
+              item: {
+                type: "function_call_output",
+                call_id: callId,
+                output: JSON.stringify(result),
+              },
+            }),
+          );
+          dcRef.current.send(JSON.stringify({ type: "response.create" }));
         }
       } catch (err) {
-        console.error('Tool call failed:', toolName, err);
+        console.error("Tool call failed:", toolName, err);
         // Send error back to AI so it can inform the patient gracefully
-        if (dcRef.current?.readyState === 'open') {
-          dcRef.current.send(JSON.stringify({
-            type: 'conversation.item.create',
-            item: {
-              type: 'function_call_output',
-              call_id: callId,
-              output: JSON.stringify({ error: 'Tool execution failed. Please try again.' }),
-            },
-          }));
-          dcRef.current.send(JSON.stringify({ type: 'response.create' }));
+        if (dcRef.current?.readyState === "open") {
+          dcRef.current.send(
+            JSON.stringify({
+              type: "conversation.item.create",
+              item: {
+                type: "function_call_output",
+                call_id: callId,
+                output: JSON.stringify({
+                  error: "Tool execution failed. Please try again.",
+                }),
+              },
+            }),
+          );
+          dcRef.current.send(JSON.stringify({ type: "response.create" }));
         }
       }
     }
 
-    if (type === 'error') {
+    if (type === "error") {
       const error = event.error as { message?: string };
-      console.error('Realtime error:', error);
+      console.error("Realtime error:", error);
     }
   };
 
   const disconnect = useCallback(async () => {
     const convId = conversationId;
-    const duration = startTimeRef.current ? Math.round((Date.now() - startTimeRef.current) / 1000) : null;
+    const duration = startTimeRef.current
+      ? Math.round((Date.now() - startTimeRef.current) / 1000)
+      : null;
 
     cleanup();
-    setConnectionState({ status: 'idle' });
+    setConnectionState({ status: "idle" });
 
     if (convId) {
       // Wait for all in-flight message saves so sentiment derivation has data
       await Promise.all(pendingSavesRef.current).catch(() => {});
       pendingSavesRef.current = [];
 
-      await fetch('/api/conversations', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/conversations", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           conversationId: convId,
-          updates: { status: 'completed', duration_seconds: duration },
+          updates: { status: "completed", duration_seconds: duration },
         }),
       }).catch(console.error);
 
       onConversationEnd?.(convId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, onConversationEnd]);
 
   const cleanup = () => {
@@ -355,21 +413,26 @@ await handleRealtimeEvent(event, convId, businessId, agentId);
   }, []);
 
   // Called by AppointmentConfirmForm after patient corrects their details
-  const resumeAfterConfirmation = useCallback((callId: string, result: unknown) => {
-    if (dcRef.current?.readyState === 'open') {
-      dcRef.current.send(JSON.stringify({
-        type: 'conversation.item.create',
-        item: {
-          type: 'function_call_output',
-          call_id: callId,
-          output: JSON.stringify(result),
-        },
-      }));
-      dcRef.current.send(JSON.stringify({ type: 'response.create' }));
-    }
-    setPendingAppointment(null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const resumeAfterConfirmation = useCallback(
+    (callId: string, result: unknown) => {
+      if (dcRef.current?.readyState === "open") {
+        dcRef.current.send(
+          JSON.stringify({
+            type: "conversation.item.create",
+            item: {
+              type: "function_call_output",
+              call_id: callId,
+              output: JSON.stringify(result),
+            },
+          }),
+        );
+        dcRef.current.send(JSON.stringify({ type: "response.create" }));
+      }
+      setPendingAppointment(null);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [],
+  );
 
   return {
     connect,
