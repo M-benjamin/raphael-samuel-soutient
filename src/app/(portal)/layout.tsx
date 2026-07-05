@@ -1,7 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 
 export const metadata = {
-  title: "Patient Portal — MediCall AI",
+  title: "Patient Portal — Raphael Samuel Soutien | Therapist",
   description:
     "Manage your appointments, access health records, and contact support.",
 };

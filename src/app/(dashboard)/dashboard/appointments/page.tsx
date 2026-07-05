@@ -44,6 +44,7 @@ import {
   Search,
   Shield,
   User,
+  Video,
   X,
   XCircle,
 } from "lucide-react";
@@ -279,6 +280,27 @@ export default function AppointmentsPage() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [business]);
+
+  const isToday = (dateString: string) => {
+    const today = new Date();
+    const appointmentDate = new Date(dateString);
+    return appointmentDate.toDateString() === today.toDateString();
+  };
+
+  const canJoinCall = (appointment: any) => {
+    const appointmentTime = new Date(appointment.slotStartIso);
+    const now = new Date();
+    const diffMintues =
+      (appointmentTime.getTime() - now.getTime()) / (1000 * 60);
+
+    return (
+      isToday(appointment.slotStartIso) &&
+      diffMintues <= 15 && //not earliar than 15 min before start
+      diffMintues >= -120 && //not later than 2 hours after start
+      (appointment.status === "Scheduled" ||
+        appointment.status === "In Progress")
+    );
+  };
 
   const onSubmit = async (data: AppointmentFormData) => {
     if (!business) return;
@@ -967,7 +989,6 @@ export default function AppointmentsPage() {
                             : "Unpaid"}
                   </span>
                 </div>
-
                 {/* Patient info */}
                 <Section title="Patient Information">
                   <DetailRow
@@ -997,7 +1018,6 @@ export default function AppointmentsPage() {
                     />
                   )}
                 </Section>
-
                 {/* Insurance */}
                 {(detailAppt.insurance_provider ||
                   detailAppt.insurance_member_id) && (
@@ -1018,7 +1038,6 @@ export default function AppointmentsPage() {
                     )}
                   </Section>
                 )}
-
                 {/* Appointment info */}
                 <Section title="Appointment">
                   <DetailRow
@@ -1043,7 +1062,6 @@ export default function AppointmentsPage() {
                     />
                   )}
                 </Section>
-
                 {/* Notes */}
                 {detailAppt.notes && (
                   <Section title="Notes">
@@ -1055,10 +1073,17 @@ export default function AppointmentsPage() {
                     </p>
                   </Section>
                 )}
-
                 {/* Payment Management */}
                 <Section title="Payment Management">
                   {/* Current amounts if any */}
+                  {/* {canJoinCall(detailAppt) && (
+                        <Link href={`/call/${detailAppt.id}`}> */}
+                  <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                    <Video className="w-4 h-4 mr-2" />
+                    Start Consultation
+                  </Button>
+                  {/* </Link>
+                      )} */}
                   {(detailAppt.amount_paid ?? 0) > 0 && (
                     <div className="grid grid-cols-2 gap-2 mb-1">
                       <div
@@ -1448,6 +1473,7 @@ export default function AppointmentsPage() {
                           ✓ Approve
                         </button>
                       )}
+
                       {detailAppt.status === "confirmed" && (
                         <button
                           onClick={() => {

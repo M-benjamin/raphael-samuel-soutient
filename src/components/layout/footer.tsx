@@ -100,7 +100,7 @@ const Footer = ({ footerLinks }: { footerLinks: Record<string, string[]> }) => {
           style={{ borderTop: "1px solid rgba(13,115,119,0.12)" }}
         >
           <p className="text-[12px]" style={{ color: "#5a9098" }}>
-            © 2026 MediCall AI. All rights reserved.
+            © 2026 Raphael Samuel Soutien. All rights reserved.
           </p>
           <div
             className="flex items-center gap-2 text-[12px]"

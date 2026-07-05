@@ -2,7 +2,8 @@
 
 import Footer from "@/components/layout/footer";
 import Navbar from "@/components/layout/navbar";
-import { VoiceWidget } from "@/components/voice/VoiceWidget";
+import { Button } from "@/components/ui/Button";
+import { BookingPanel } from "@/components/voice/BookingPanel";
 import { footerLinks, navLinks } from "@/lib/constant";
 
 import {
@@ -16,29 +17,22 @@ import {
   ChevronDown,
   ClipboardList,
   Clock,
-  Code2,
   Globe,
-  Headphones,
-  Heart,
   HeartPulse,
   LineChart,
-  Lock,
-  MessageSquare,
-  PhoneCall,
   PhoneIncoming,
   Play,
   PlugZap,
   Repeat2,
   Shield,
   SlidersHorizontal,
-  Sparkles,
   Star,
   Timer,
   TrendingUp,
   Zap,
 } from "lucide-react";
 import Link from "next/link";
-import Script from "next/script";
+import { useState } from "react";
 
 /* ─── Data ───────────────────────────────────────────────────────── */
 
@@ -63,21 +57,21 @@ const steps = [
   {
     num: "02",
     icon: Bot,
-    title: "Configure Your AI Agent",
+    title: "Configure appointment settings",
     desc: "Choose a voice, personality, and greeting. The AI learns your specific practice details.",
     highlight: "Trained on your exact services",
   },
   {
     num: "03",
     icon: Globe,
-    title: "Embed on Your Website",
+    title: "wait for therapist to approve",
     desc: "Paste one script tag. Patients can instantly call your AI receptionist.",
     highlight: "Live in under 30 seconds",
   },
   {
     num: "04",
     icon: BarChart3,
-    title: "Watch Bookings Grow",
+    title: "pay for the service",
     desc: "Every call is logged, transcribed, and turned into booked appointments.",
     highlight: "Zero missed opportunities",
   },
@@ -125,17 +119,15 @@ const testimonials = [
 const plans = [
   {
     name: "Starter",
-    price: "Free",
-    period: "forever · self-hosted",
-    desc: "Perfect for a single practice testing AI voice.",
+    price: "individual Consultation",
+    // period: "forever · self-hosted",
+    desc: "Perfect for a single person",
     features: [
-      "1 Practice profile",
-      "1 AI Voice Agent",
-      "Unlimited conversations",
-      "Appointment booking",
-      "Analytics dashboard",
-      "Embeddable widget",
-      "Conversation transcripts",
+      "1 séance - 100 €",
+      "3 séance - 200 €",
+      "5 séance - 300 €",
+      "10 séance - 400 €",
+      "12 séance - 500 €",
     ],
     cta: "Get Started Free",
     href: "/signup",
@@ -143,22 +135,52 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "$49",
+    price: "couple Consultation",
     period: "per month",
     desc: "For growing practices that need more power.",
     features: [
-      "Multiple practice locations",
-      "Unlimited AI agents",
-      "Priority support",
-      "Custom domains",
-      "Advanced analytics",
-      "API access",
-      "White-label widget",
+      "1 séance - 100 €",
+      "3 séance - 200 €",
+      "5 séance - 300 €",
+      "10 séance - 400 €",
+      "12 séance - 500 €",
     ],
-    cta: "Join Waitlist",
+    cta: "sign up",
     href: "/signup",
     highlight: true,
     badge: "Coming Soon",
+  },
+  {
+    name: "Starter",
+    price: "familial Consultation",
+    // period: "forever · self-hosted",
+    desc: "Perfect for family practices",
+    features: [
+      "1 séance - 100 €",
+      "3 séance - 200 €",
+      "5 séance - 300 €",
+      "10 séance - 400 €",
+      "12 séance - 500 €",
+    ],
+    cta: "Get Started Free",
+    href: "/signup",
+    highlight: false,
+  },
+  {
+    name: "Starter",
+    price: "Group Consultation",
+    // period: "forever · self-hosted",
+    desc: "Perfect for a single person",
+    features: [
+      "1 séance - 100 €",
+      "3 séance - 200 €",
+      "5 séance - 300 €",
+      "10 séance - 400 €",
+      "12 séance - 500 €",
+    ],
+    cta: "Get Started Free",
+    href: "/signup",
+    highlight: false,
   },
 ];
 
@@ -167,6 +189,7 @@ const plans = [
 export default function LandingPage() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const demoBizId = process.env.NEXT_PUBLIC_DEMO_BUSINESS_ID || "";
+  const [bookingOpen, setBookingOpen] = useState(false);
   // const widgetInjected = useRef(false);
 
   // const supabase = createClient();
@@ -178,7 +201,7 @@ export default function LandingPage() {
   return (
     <div
       className="min-h-screen text-[#0a2e30] font-sans antialiased overflow-x-hidden"
-      style={{ background: "#051c1e" }}
+      // style={{ background: "#051c1e" }}
     >
       {/* ── NAV ─────────────────────────────────────────────────── */}
       <Navbar navLinks={navLinks} />
@@ -233,12 +256,12 @@ export default function LandingPage() {
               backdropFilter: "blur(8px)",
             }}
           >
-            <span
+            {/* <span
               className="w-1.5 h-1.5 rounded-full animate-pulse"
               style={{ background: "#22c4d0" }}
             />
             Powered by OpenAI GPT-4o Realtime
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5" /> */}
           </div>
 
           {/* Main heading */}
@@ -261,15 +284,16 @@ export default function LandingPage() {
             className="text-[18px] leading-relaxed max-w-2xl mx-auto mb-10"
             style={{ color: "rgba(255,255,255,0.65)" }}
           >
-            Your AI voice receptionist answers 24/7, books appointments, and
-            handles every inquiry — so your team focuses on what matters:
-            excellent patient care.
+            your therapist, is always available to answer your calls, book
+            appointments, and provide information to your patients. Our AI
+            receptionist is trained on your specific practice details, ensuring
+            a personalized experience for every caller.
           </p>
 
           {/* CTA row */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center mb-16">
-            <Link
-              href="/signup"
+            <Button
+              onClick={() => setBookingOpen(true)}
               className="flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-semibold rounded-2xl text-white transition-all duration-150 hover:scale-[1.03] hover:brightness-110"
               style={{
                 background: "linear-gradient(135deg, #14a8b5, #0d7377)",
@@ -277,11 +301,11 @@ export default function LandingPage() {
                   "0 0 0 1px rgba(20,168,181,0.40), 0 8px 32px rgba(20,168,181,0.30)",
               }}
             >
-              Start Free — No Card Needed
+              Make an appointment
               <ArrowRight className="w-4.5 h-4.5" />
-            </Link>
+            </Button>
             <Link
-              href="#demo"
+              href="/login"
               className="flex items-center justify-center gap-2 px-8 py-4 text-[15px] font-semibold rounded-2xl transition-all duration-150 hover:scale-[1.02]"
               style={{
                 background: "rgba(255,255,255,0.07)",
@@ -291,7 +315,7 @@ export default function LandingPage() {
               }}
             >
               <Play className="w-4 h-4" style={{ color: "#22c4d0" }} />
-              See Live Demo
+              login as therapist
             </Link>
           </div>
 
@@ -350,14 +374,14 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-        {
+        {/* {
           <VoiceWidget
             businessId={demoBizId}
             primaryColor={"#0d7377"}
             greeting="hello there"
             // agentId={website.agent_id || undefined}
           />
-        }
+        } */}
 
         {/* ── Floating feature cards ── */}
         <div className="relative z-10 w-full max-w-6xl mx-auto px-6 pb-20">
@@ -955,15 +979,15 @@ export default function LandingPage() {
       </section>
 
       {/* ── INTEGRATION / CODE ──────────────────────────────────── */}
-      <section
+      {/* <section
         id="integration"
         className="py-28 px-6 relative overflow-hidden"
         style={{ background: "#f2f8f9" }}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left — text */}
-            <div>
+          <div className="grid lg:grid-cols-2 gap-16 items-center"> */}
+      {/* Left — text */}
+      {/* <div>
               <div
                 className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold mb-6"
                 style={{
@@ -1042,10 +1066,10 @@ export default function LandingPage() {
                 Get Your Embed Code
                 <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
+            </div> */}
 
-            {/* Right — code block (keep dark for contrast) */}
-            <div>
+      {/* Right — code block (keep dark for contrast) */}
+      {/* <div>
               <div
                 className="rounded-2xl overflow-hidden"
                 style={{
@@ -1053,9 +1077,9 @@ export default function LandingPage() {
                   border: "1px solid rgba(255,255,255,0.08)",
                   boxShadow: "0 20px 60px rgba(10,61,64,0.18)",
                 }}
-              >
-                {/* Window chrome */}
-                <div
+              > */}
+      {/* Window chrome */}
+      {/* <div
                   className="flex items-center gap-2 px-5 py-3.5"
                   style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
                 >
@@ -1068,9 +1092,9 @@ export default function LandingPage() {
                   >
                     index.html
                   </span>
-                </div>
-                {/* Code */}
-                <div className="p-6 font-mono text-[13px] leading-loose overflow-x-auto">
+                </div> */}
+      {/* Code */}
+      {/* <div className="p-6 font-mono text-[13px] leading-loose overflow-x-auto">
                   <div style={{ color: "#6b7280" }}>
                     {"<!-- Paste before </body> -->"}
                   </div>
@@ -1109,9 +1133,9 @@ export default function LandingPage() {
                   <div>
                     <span style={{ color: "#f97316" }}>{"</script>"}</span>
                   </div>
-                </div>
-                {/* Footer bar */}
-                <div
+                </div> */}
+      {/* Footer bar */}
+      {/* <div
                   className="flex items-center gap-2 px-5 py-3"
                   style={{
                     borderTop: "1px solid rgba(255,255,255,0.06)",
@@ -1130,10 +1154,10 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ── LIVE DEMO SECTION ───────────────────────────────────── */}
-      <section
+      {/* <section
         id="demo"
         className="py-28 px-6 relative overflow-hidden"
         style={{ background: "#eaf6f7" }}
@@ -1147,9 +1171,9 @@ export default function LandingPage() {
         />
 
         <div className="max-w-7xl mx-auto relative">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left — copy */}
-            <div>
+          <div className="grid lg:grid-cols-2 gap-16 items-center"> */}
+      {/* Left — copy */}
+      {/* <div>
               <div
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold mb-7"
                 style={{
@@ -1189,10 +1213,10 @@ export default function LandingPage() {
                 Click the teal phone button in the bottom-right corner. Ask it
                 anything — services, pricing, hours, or how to book an
                 appointment.
-              </p>
+              </p> */}
 
-              {/* Feature checklist */}
-              <div className="space-y-4">
+      {/* Feature checklist */}
+      {/* <div className="space-y-4">
                 {[
                   {
                     icon: Headphones,
@@ -1242,10 +1266,10 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
-            {/* Right — visual call-to-action card */}
-            <div className="flex justify-center lg:justify-end">
+      {/* Right — visual call-to-action card */}
+      {/* <div className="flex justify-center lg:justify-end">
               <div
                 className="relative w-full max-w-sm rounded-2xl p-8 text-center overflow-hidden bg-white"
                 style={{
@@ -1254,16 +1278,16 @@ export default function LandingPage() {
                 }}
               >
                 {/* Top glow */}
-                <div
+      {/* <div
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-24 blur-3xl opacity-20 pointer-events-none"
                   style={{
                     background:
                       "radial-gradient(ellipse, #14a8b5, transparent)",
                   }}
-                />
+                /> */}
 
-                {/* Animated orb */}
-                <div className="relative flex items-center justify-center mb-6">
+      {/* Animated orb */}
+      {/* <div className="relative flex items-center justify-center mb-6">
                   <div
                     className="absolute w-32 h-32 rounded-full"
                     style={{
@@ -1303,10 +1327,10 @@ export default function LandingPage() {
                   Our AI demo agent is live and ready to chat. Click the{" "}
                   <span style={{ color: "#0d7377" }}>teal phone button</span> in
                   the corner.
-                </p>
+                </p>  */}
 
-                {/* Suggested questions */}
-                <div className="space-y-2 text-left">
+      {/* Suggested questions */}
+      {/* <div className="space-y-2 text-left">
                   <div
                     className="text-[10px] font-bold uppercase tracking-widest mb-3"
                     style={{ color: "#5a9098" }}
@@ -1355,7 +1379,7 @@ export default function LandingPage() {
             100% { transform: scale(1.6); opacity: 0; }
           }
         `}</style>
-      </section>
+      </section> */}
 
       {/* ── PRICING ─────────────────────────────────────────────── */}
       <section
@@ -1453,14 +1477,14 @@ export default function LandingPage() {
                   >
                     {plan.price}
                   </span>
-                  {plan.price !== "Free" && (
+                  {/* {plan.price !== "Free" && (
                     <span
                       className="text-[14px] mb-2"
                       style={{ color: "#5a9098" }}
                     >
                       / mo
                     </span>
-                  )}
+                  )} */}
                 </div>
                 <div className="text-[12px] mb-2" style={{ color: "#5a9098" }}>
                   {plan.period}
@@ -1638,9 +1662,59 @@ export default function LandingPage() {
 
       {/* ── FOOTER ──────────────────────────────────────────────── */}
       <Footer footerLinks={footerLinks} />
+      {bookingOpen && demoBizId && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+          onClick={() => setBookingOpen(false)}
+        >
+          <div
+            style={{
+              width: 340,
+              borderRadius: 16,
+              overflow: "hidden",
+              background: "rgba(8,14,16,0.97)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              boxShadow: "0 24px 64px rgba(0,0,0,0.7)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                padding: "10px 12px 0",
+              }}
+            >
+              <button
+                onClick={() => setBookingOpen(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "#64748b",
+                  fontSize: 18,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <BookingPanel businessId={demoBizId} color={"#0d7377"} />
+          </div>
+        </div>
+      )}
 
       {/* ── LIVE DEMO WIDGET — home page only ───────────────────── */}
-      {demoBizId && (
+      {/* {demoBizId && (
         <Script id="medicall-demo-init" strategy="afterInteractive">
           {`
             (function() {
@@ -1654,7 +1728,7 @@ export default function LandingPage() {
             })();
           `}
         </Script>
-      )}
+      )} */}
     </div>
   );
 }

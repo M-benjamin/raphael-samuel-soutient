@@ -23,13 +23,13 @@ interface VoiceWidgetProps {
 
 export function VoiceWidget({
   businessId,
-  businessName = "Medical Practice",
+  businessName = "Raphaël Samuel Soutien",
   primaryColor = "#22c55e",
   position = "bottom-right",
   greeting,
 }: VoiceWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"call" | "book">("call");
+  const [activeTab, setActiveTab] = useState<"call" | "book">("book");
   const {
     transcript,
     connectionState,
@@ -47,7 +47,7 @@ export function VoiceWidget({
     if (connectionState.status !== "idle") await disconnect();
     setPendingAppointment(null);
     setIsOpen(false);
-    setActiveTab("call");
+    setActiveTab("book");
   };
 
   const isSpeaking = connectionState.status === "speaking";
@@ -132,7 +132,7 @@ export function VoiceWidget({
                         ? isSpeaking
                           ? "Speaking…"
                           : "Listening…"
-                        : "AI Receptionist"}
+                        : "Receptionist"}
                     </span>
                   </div>
                 </div>
@@ -249,7 +249,7 @@ export function VoiceWidget({
             >
               <Sparkles className="w-3 h-3" style={{ color: "#3d5060" }} />
               <span className="text-[10px]" style={{ color: "#2a3f4d" }}>
-                Powered by MediCall AI
+                Powered Raphaël Samuel Soutien
               </span>
             </div>
           </motion.div>
@@ -301,7 +301,7 @@ export function VoiceWidget({
                 boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
               }}
             >
-              Talk to AI
+              make an appointment
               <div
                 className="absolute top-full right-4 w-0 h-0"
                 style={{

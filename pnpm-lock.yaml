@@ -26,6 +26,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.100.10
         version: 5.101.2(react@18.3.1)
+      '@zegocloud/zego-uikit-prebuilt':
+        specifier: ^2.16.0
+        version: 2.17.3
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -624,6 +627,9 @@ packages:
         optional: true
       typescript:
         optional: true
+
+  '@zegocloud/zego-uikit-prebuilt@2.17.3':
+    resolution: {integrity: sha512-PxRCLwPkwDudRiruHKVDodMZaOrvqW7cXv75RgZITmDpYD33vPLHaXmgZZ0uDhmQUpBZxJ63pj8mzdk/wC+WKA==}
 
   abitype@1.2.3:
     resolution: {integrity: sha512-Ofer5QUnuUdTFsBRwARMoWKOH1ND5ehwYhJ3OJ/BQO+StkwQjHw0XyVh4vDttzHB7QOFhPHa/o413PJ82gU/Tg==}
@@ -2768,6 +2774,8 @@ snapshots:
       - immer
       - react
       - use-sync-external-store
+
+  '@zegocloud/zego-uikit-prebuilt@2.17.3': {}
 
   abitype@1.2.3(typescript@5.9.3)(zod@3.25.76):
     optionalDependencies:

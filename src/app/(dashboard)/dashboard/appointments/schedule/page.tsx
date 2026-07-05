@@ -824,7 +824,6 @@ export default function SchedulePage() {
                   <StatusBadge status={selectedAppt.status} />
                   <PaymentBadge appt={selectedAppt} />
                 </div>
-
                 {/* Patient info */}
                 <div
                   className="rounded-xl p-4 space-y-3"
@@ -893,7 +892,6 @@ export default function SchedulePage() {
                     </div>
                   )}
                 </div>
-
                 {/* Service */}
                 {selectedAppt.service && (
                   <div
@@ -925,7 +923,6 @@ export default function SchedulePage() {
                     )}
                   </div>
                 )}
-
                 {/* Notes */}
                 {selectedAppt.notes && (
                   <div
@@ -949,7 +946,6 @@ export default function SchedulePage() {
                     </p>
                   </div>
                 )}
-
                 {/* Status actions */}
                 {!["completed", "cancelled"].includes(selectedAppt.status) && (
                   <div
@@ -1009,7 +1005,7 @@ export default function SchedulePage() {
                     </div>
                   </div>
                 )}
-
+                uuuuiuuuuuuuuu
                 {/* Payment management */}
                 <div
                   className="rounded-xl p-4 space-y-3"

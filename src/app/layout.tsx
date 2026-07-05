@@ -1,16 +1,24 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import '@/styles/globals.css';
+import "@/styles/globals.css";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'MediCall AI - AI Voice Receptionist for Healthcare Practices',
-    template: '%s | MediCall AI',
+    default: "Raphael samuel Soutien | Therapist",
+    template: "Therapist",
   },
-  description: 'AI-powered voice receptionist platform for healthcare practices and clinics. Book appointments, answer patient questions, and capture leads 24/7.',
-  keywords: ['AI receptionist', 'healthcare', 'medical practice', 'voice AI', 'appointment booking', 'clinic'],
+  description:
+    "Therapist website for Raphael Samuel Soutien, a licensed therapist providing counseling and support services.",
+  keywords: [
+    "AI receptionist",
+    "healthcare",
+    "medical practice",
+    "voice AI",
+    "appointment booking",
+    "clinic",
+  ],
 };
 
 export default function RootLayout({
@@ -20,9 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        {children}
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

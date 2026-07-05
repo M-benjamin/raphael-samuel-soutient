@@ -152,7 +152,7 @@ export function appointmentConfirmationHtml(d: AppointmentEmailData): string {
         <tr>
           <td style="background:#f8fafc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;">
             <p style="margin:0;font-size:11px;color:#94a3b8;">
-              This email was sent by <strong>${d.businessName}</strong> via MediCall AI.<br/>
+              This email was sent by <strong>${d.businessName}</strong> via Rapheal samuel Soutien.<br/>
               Appointment ID: <code style="font-size:10px;color:#64748b;">${d.appointmentId}</code>
             </p>
           </td>

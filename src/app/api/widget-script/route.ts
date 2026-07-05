@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(_req: NextRequest) {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   const script = `
 (function() {
@@ -125,7 +125,7 @@ export async function GET(_req: NextRequest) {
 
     var tip = document.createElement('div');
     tip.className = 'carbot-tooltip';
-    tip.textContent = 'Talk to AI';
+   
 
     fabEl = document.createElement('button');
     fabEl.className = 'carbot-fab';
@@ -764,7 +764,7 @@ export async function GET(_req: NextRequest) {
       '<div id="carbot-panel-book" style="display:none"></div>' +
 
       '<div class="carbot-footer">' +
-        sparkSvg + '<span>Powered by MediCall AI</span>' +
+        sparkSvg + '<span>Powered by Raphael Samuel Soutien</span>' +
       '</div>'
     );
   }
@@ -1508,9 +1508,9 @@ export async function GET(_req: NextRequest) {
 
   return new NextResponse(script, {
     headers: {
-      'Content-Type': 'application/javascript; charset=utf-8',
-      'Cache-Control': 'public, max-age=300, stale-while-revalidate=3600',
-      'Access-Control-Allow-Origin': '*',
+      "Content-Type": "application/javascript; charset=utf-8",
+      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",
+      "Access-Control-Allow-Origin": "*",
     },
   });
 }
@@ -1519,9 +1519,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }
