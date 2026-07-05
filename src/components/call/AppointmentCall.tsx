@@ -1,9 +1,9 @@
-import { Appointment } from "@/store/appointmentStore";
+// import { Appointment } from "@/store/appointmentStore";
 import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { useCallback, useEffect, useRef } from "react";
 
 interface AppointmentCallInterface {
-  appointment: Appointment;
+  // appointment: Appointment;
   currentUser: {
     id: string;
     name: string;
@@ -17,7 +17,7 @@ const AppointmentCall = ({
   currentUser,
   onCallEnd,
   joinConsultation,
-}: AppointmentCallInterface) => {
+}: any) => {
   const zpRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initializationRef = useRef(false);
